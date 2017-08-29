@@ -125,13 +125,14 @@ public class StartUI extends WechatApi {
             int[] checkResponse = synccheck();
             int retcode = checkResponse[0];
             int selector = checkResponse[1];
-            log.debug("retcode: {}, selector: {}", retcode, selector);
+            log.info("retcode: {}, selector: {}", retcode, selector);
             switch (retcode) {
                 case 1100:
                     log.warn(Const.LOG_MSG_LOGOUT);
                     break;
                 case 1101:
                     log.warn(Const.LOG_MSG_LOGIN_OTHERWHERE);
+                    System.exit(0);
                     break;
                 case 1102:
                     log.warn(Const.LOG_MSG_QUIT_ON_PHONE);
@@ -196,7 +197,7 @@ public class StartUI extends WechatApi {
     }
 
     public void handle_msg(JsonObject dic) {
-        log.debug("handle message");
+        log.info("handle message : " + dic);
         if (null != messageHandle) {
             messageHandle.wxSync(dic);
         }
@@ -239,6 +240,10 @@ public class StartUI extends WechatApi {
             } else if (conf.get("MSGTYPE_STATUSNOTIFY").equals(msgType)) {
                 log.info(Const.LOG_MSG_NOTIFY_PHONE);
                 return;
+            //请求添加好友
+            }else if(conf.get("MSGTYPE_VERIFYMSG").equals(msgType)){
+            	
+            	log.info(Const.LOG_MSG_ADD_FRIEND);
             }
 
             this.show_msg(userMessage);
