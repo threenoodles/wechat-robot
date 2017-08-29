@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -744,6 +745,40 @@ public class WechatApi {
     public void sendText(String msg, String uid) {
         this.wxSendMessage(msg, uid);
     }
+    
+    /**
+     * @param userName
+     * @return
+     */
+    public JsonElement agreeUser(String userName,String userTicket){
+    	//https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxverifyuser?r=1503972184935&lang=zh_CN&pass_ticket=ty1KwnoNVHiwh3CecD5KzCMw6e7j9W2xCBkU7txru%252FFIUSpUPyIjTDO0psQIuCe2
+    	String url = conf.get("API_webwxverifyuser") + "?r="+System.currentTimeMillis();
+    	Map<String,Object> params = new HashMap<String,Object>(20);
+    	params.put("BaseRequest", this.baseRequest);
+    	params.put("Opcode", "3");
+    	params.put("VerifyUserListSize", 1);
+    	
+    	//构造参数
+    	List<Map<String,String>> userList = new ArrayList<Map<String,String>>(1);
+    	Map<String,String> user = new HashMap<String,String>(8);
+    	user.put("Value", userName);
+    	user.put("VerifyUserTicket", userTicket);
+    	userList.add(user);
+    	params.put("VerifyUserList", userList);
+    	
+    	params.put("VerifyContent", "");
+    	params.put("SceneListCount", 1);
+    	
+    	List<Integer> sceneList = new ArrayList<Integer>(1);
+    	sceneList.add(33);
+    	params.put("SceneList", sceneList);
+    	params.put("skey", this.session.getSkey());
+    	
+    	
+    	JsonElement result = doPost(url, params);
+    	log.info("agreeUser  result : " + result.toString());
+    	return result;
+    }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -793,12 +828,16 @@ public class WechatApi {
             return null;
         }
     }
+    
+    private JsonElement doPost(String url, Object params) {
+    	return this.doPost(url, params, null);
+    }
 
-    private JsonElement doPost(String url, Object object) {
+    private JsonElement doPost(String url, Object params,Map<String,String> headers) {
         String bodyJson = null;
         RequestBody requestBody = RequestBody.create(JSON, "");
-        if (null != object) {
-            bodyJson = Utils.toJson(object);
+        if (null != params) {
+            bodyJson = Utils.toJson(params);
             requestBody = RequestBody.create(JSON, bodyJson);
         }
 
@@ -806,15 +845,21 @@ public class WechatApi {
         if (null != cookie) {
             requestBuilder.addHeader("Cookie", cookie);
         }
-
+        
+        if(headers != null && headers.size()>0){
+        	for(Entry<String, String> kv : headers.entrySet()){
+        		requestBuilder.addHeader(kv.getKey(),kv.getValue());	
+        	}
+        }
+        
         Request request = requestBuilder.build();
 
-        log.debug("[*] 请求 => {}\n", request);
+        log.info("[*] 请求 => {}\n", request);
         try {
             Response response = client.newCall(request).execute();
             String body = response.body().string();
             if (null != body && body.length() <= 300) {
-                log.debug("[*] 响应 => {}", body);
+                log.info("[*] 响应 => {}", body);
             }
             return new JsonParser().parse(body);
         } catch (Exception e) {

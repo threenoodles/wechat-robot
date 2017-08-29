@@ -132,16 +132,19 @@ public class StartUI extends WechatApi {
                     break;
                 case 1101:
                     log.warn(Const.LOG_MSG_LOGIN_OTHERWHERE);
-                    System.exit(0);
+                    //System.exit(0);
+                    Utils.sleep(5000);
                     break;
                 case 1102:
                     log.warn(Const.LOG_MSG_QUIT_ON_PHONE);
+                    Utils.sleep(5000);
                     break;
                 case 0:
                     this.handle(selector);
                     break;
                 default:
                     log.debug("wxSync: {}\n", wxSync().toString());
+                    Utils.sleep(5000);
                     break;
             }
         }
@@ -219,7 +222,7 @@ public class StartUI extends WechatApi {
             UserMessage userMessage = new UserMessage(this);
             userMessage.setRawMsg(msg);
 
-            // 文本groupMessage
+            // 文本消息
             if (conf.get("MSGTYPE_TEXT").equals(msgType)) {
                 // 地理位置消息
                 if (content.contains("pictype=location")) {
@@ -227,7 +230,7 @@ public class StartUI extends WechatApi {
                     userMessage.setLocation(location);
                     userMessage.setLog(String.format(Const.LOG_MSG_LOCATION, location));
                 } else {
-                    // 普通文本
+                    //普通文本的消息
                     String text = null;
                     if (content.contains(":<br/>")) {
                         text = content.split(":<br/>")[1];
@@ -236,14 +239,50 @@ public class StartUI extends WechatApi {
                     }
                     userMessage.setText(text);
                     userMessage.setLog(text.replace("<br/>", "\n"));
+                    if(text.contains("你好") || text.contains("您好")){
+                    	String uid = msg.get("FromUserName").getAsString();
+                    	try {
+                    		Thread.sleep(8000);
+						} catch (Exception e) {
+						}
+                    	this.sendText("简历直接微信上传给我就好，word，pdf，图片或者在线简历都可以，我会统一筛选，合适我直接微信回复您面试，谢谢^_^，有时候回复不及时请见谅", uid);
+                    }
                 }
+            //提示手机网页版微信登录状态消息
             } else if (conf.get("MSGTYPE_STATUSNOTIFY").equals(msgType)) {
                 log.info(Const.LOG_MSG_NOTIFY_PHONE);
                 return;
-            //请求添加好友
+            //请求添加好友的消息
             }else if(conf.get("MSGTYPE_VERIFYMSG").equals(msgType)){
             	
             	log.info(Const.LOG_MSG_ADD_FRIEND);
+            	log.info("addMsg : " + msg.get("RecommendInfo"));
+            	
+            	JsonObject addUser = msg.get("RecommendInfo").getAsJsonObject();
+            	
+            	String userName = addUser.get("UserName").getAsString();
+            	String userTicket = addUser.get("Ticket").getAsString();
+            	
+            	this.agreeUser(userName, userTicket);
+            //图片消息
+            }else if(conf.get("MSGTYPE_IMAGE").equals(msgType)){
+            	log.info("收到图片消息");
+            	String uid = msg.get("FromUserName").getAsString();
+            	try {
+            		Thread.sleep(13000);
+				} catch (Exception e) {
+				}
+            	this.sendText("已查收，谢谢，合适我会直接微信通知您^_^", uid);
+            	
+            //文件消息
+            }else if(conf.get("MSGTYPE_APP").equals(msgType)){
+            	log.info("收到文件消息");
+            	String uid = msg.get("FromUserName").getAsString();
+            	try {
+            		Thread.sleep(13000);
+				} catch (Exception e) {
+				}
+            	this.sendText("已查收，谢谢，合适我会直接微信通知您^_^", uid);
             }
 
             this.show_msg(userMessage);
@@ -361,8 +400,11 @@ public class StartUI extends WechatApi {
                 wxSync();
                 break;
             case 0:
-                Utils.sleep(1000);
+                Utils.sleep(5000);
                 break;
+            case 6:
+            	Utils.sleep(5000);
+            	break;
             case 4:
                 // 保存群聊到通讯录
                 // 修改群名称
@@ -374,6 +416,7 @@ public class StartUI extends WechatApi {
                 }
                 break;
             default:
+            	Utils.sleep(5000);
                 break;
         }
     }
