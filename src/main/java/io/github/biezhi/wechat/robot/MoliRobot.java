@@ -1,17 +1,18 @@
 package io.github.biezhi.wechat.robot;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import com.google.gson.JsonObject;
-import io.github.biezhi.wechat.Utils;
+
 import io.github.biezhi.wechat.handle.AbstractMessageHandler;
 import io.github.biezhi.wechat.model.Environment;
 import io.github.biezhi.wechat.model.GroupMessage;
 import io.github.biezhi.wechat.model.UserMessage;
+import io.github.biezhi.wechat.utils.Utils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 茉莉机器人实现

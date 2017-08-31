@@ -1,20 +1,37 @@
 package io.github.biezhi.wechat.api;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-import io.github.biezhi.wechat.Utils;
-import io.github.biezhi.wechat.model.Const;
-import io.github.biezhi.wechat.model.Environment;
-import io.github.biezhi.wechat.model.Session;
-import okhttp3.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+
+import io.github.biezhi.wechat.model.Const;
+import io.github.biezhi.wechat.model.Environment;
+import io.github.biezhi.wechat.model.Session;
+import io.github.biezhi.wechat.utils.Utils;
+import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * 微信API实现
@@ -775,9 +792,9 @@ public class WechatApi {
     	params.put("skey", this.session.getSkey());
     	
     	
-    	JsonElement result = doPost(url, params);
-    	log.info("agreeUser  result : " + result.toString());
-    	return result;
+//    	JsonElement result = doPost(url, params);
+//    	log.info("添加好友 : "+ userName +",结果 : " + result.toString());
+    	return null;
     }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");

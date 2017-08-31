@@ -1,24 +1,28 @@
 package io.github.biezhi.wechat.ui;
 
+import java.awt.EventQueue;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.swing.UIManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.github.biezhi.wechat.Utils;
+
 import io.github.biezhi.wechat.api.WechatApi;
 import io.github.biezhi.wechat.handle.MessageHandle;
 import io.github.biezhi.wechat.model.Const;
 import io.github.biezhi.wechat.model.Environment;
 import io.github.biezhi.wechat.model.GroupMessage;
 import io.github.biezhi.wechat.model.UserMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import io.github.biezhi.wechat.utils.ThreadPoolExecutorUtils;
+import io.github.biezhi.wechat.utils.Utils;
 
 /**
  * @author biezhi
@@ -126,26 +130,55 @@ public class StartUI extends WechatApi {
             int retcode = checkResponse[0];
             int selector = checkResponse[1];
             log.info("retcode: {}, selector: {}", retcode, selector);
-            switch (retcode) {
-                case 1100:
-                    log.warn(Const.LOG_MSG_LOGOUT);
-                    break;
-                case 1101:
-                    log.warn(Const.LOG_MSG_LOGIN_OTHERWHERE);
-                    //System.exit(0);
-                    Utils.sleep(5000);
-                    break;
-                case 1102:
-                    log.warn(Const.LOG_MSG_QUIT_ON_PHONE);
-                    Utils.sleep(5000);
-                    break;
-                case 0:
-                    this.handle(selector);
-                    break;
-                default:
-                    log.debug("wxSync: {}\n", wxSync().toString());
-                    Utils.sleep(5000);
-                    break;
+            //退出
+            if(retcode == 1100){
+            	log.warn(Const.LOG_MSG_LOGOUT);
+            //在别的地方登陆
+            }else if(retcode == 1101){
+            	log.warn(Const.LOG_MSG_LOGIN_OTHERWHERE);
+                //System.exit(0);
+                Utils.sleep(5000);
+            //用户手机上退出
+            }else if(retcode == 1102){
+            	
+            	log.warn(Const.LOG_MSG_QUIT_ON_PHONE);
+            //处理消息
+            }else if(retcode == 0){
+            	try {
+
+                	JsonObject dic = wxSync();
+                	if(dic == null){
+                		log.info("dic == null !");
+                		Utils.sleep(1000);
+                	}
+                	if(selector == 2){
+                		handle_msg(dic);
+                		
+                	}else if(selector == 7){
+                		wxSync();
+                	}else if(selector == 0){
+                		Utils.sleep(500);
+                	}else if(selector == 6){
+                		//Utils.sleep(1000);
+                		log.warn("selector == 6");
+                	}else if(selector == 4){
+                		// 保存群聊到通讯录
+                        // 修改群名称
+                        // 新增或删除联系人
+                        // 群聊成员数目变化
+                        dic = wxSync();
+                        if (null != dic) {
+                            handle_mod(dic);
+                        }
+                	}else {
+                		log.info("未知消息 : " + dic);
+                	}
+                
+				} catch (Exception e) {
+					log.error(e.getMessage());
+				}
+            }else {
+            	log.info("wxSync: {}\n", wxSync().toString());
             }
         }
     }
@@ -239,13 +272,21 @@ public class StartUI extends WechatApi {
                     }
                     userMessage.setText(text);
                     userMessage.setLog(text.replace("<br/>", "\n"));
-                    if(text.contains("你好") || text.contains("您好")){
+                    if(text.contains("你好") 
+                    		|| text.contains("您好") 
+                    		|| text.contains("在这") 
+                    		|| text.contains("哪里")
+                    		|| text.contains("在？")
+                    		|| text.contains("在?")){
                     	String uid = msg.get("FromUserName").getAsString();
-                    	try {
-                    		Thread.sleep(8000);
-						} catch (Exception e) {
-						}
-                    	this.sendText("简历直接微信上传给我就好，word，pdf，图片或者在线简历都可以，我会统一筛选，合适我直接微信回复您面试，谢谢^_^，有时候回复不及时请见谅", uid);
+                    	ThreadPoolExecutorUtils.getCacheExecutorService().execute(new Runnable() {
+							
+							@Override
+							public void run() {
+								Utils.sleep(8000);
+								StartUI.this.sendText("简历直接微信上传给我就好，word，pdf，图片或者在线简历都可以，我会统一筛选，合适我直接微信回复您面试，谢谢^_^，有时候回复不及时请见谅", uid);
+							}
+						});;
                     }
                 }
             //提示手机网页版微信登录状态消息
@@ -263,26 +304,40 @@ public class StartUI extends WechatApi {
             	String userName = addUser.get("UserName").getAsString();
             	String userTicket = addUser.get("Ticket").getAsString();
             	
-            	this.agreeUser(userName, userTicket);
+            	ThreadPoolExecutorUtils.getCacheExecutorService().execute(new Runnable() {
+					@Override
+					public void run() {
+						Utils.sleep(3000);
+						StartUI.this.agreeUser(userName, userTicket);
+					}
+				});
+            	
             //图片消息
             }else if(conf.get("MSGTYPE_IMAGE").equals(msgType)){
             	log.info("收到图片消息");
             	String uid = msg.get("FromUserName").getAsString();
-            	try {
-            		Thread.sleep(13000);
-				} catch (Exception e) {
-				}
-            	this.sendText("已查收，谢谢，合适我会直接微信通知您^_^", uid);
+            	ThreadPoolExecutorUtils.getCacheExecutorService().execute(new Runnable() {
+					
+					@Override
+					public void run() {
+						Utils.sleep(10000);
+						StartUI.this.sendText("已查收，谢谢，合适我会直接微信通知您^_^", uid);
+					}
+				});
+            	
             	
             //文件消息
             }else if(conf.get("MSGTYPE_APP").equals(msgType)){
             	log.info("收到文件消息");
             	String uid = msg.get("FromUserName").getAsString();
-            	try {
-            		Thread.sleep(13000);
-				} catch (Exception e) {
-				}
-            	this.sendText("已查收，谢谢，合适我会直接微信通知您^_^", uid);
+            	ThreadPoolExecutorUtils.getCacheExecutorService().execute(new Runnable() {
+					
+					@Override
+					public void run() {
+						Utils.sleep(10000);
+						StartUI.this.sendText("已查收，谢谢，合适我会直接微信通知您^_^", uid);
+					}
+				});
             }
 
             this.show_msg(userMessage);
@@ -388,37 +443,37 @@ public class StartUI extends WechatApi {
         }
     }
 
-    private void handle(int selector) {
-        switch (selector) {
-            case 2:
-                JsonObject dic = wxSync();
-                if (null != dic) {
-                    handle_msg(dic);
-                }
-                break;
-            case 7:
-                wxSync();
-                break;
-            case 0:
-                Utils.sleep(5000);
-                break;
-            case 6:
-            	Utils.sleep(5000);
-            	break;
-            case 4:
-                // 保存群聊到通讯录
-                // 修改群名称
-                // 新增或删除联系人
-                // 群聊成员数目变化
-                dic = wxSync();
-                if (null != dic) {
-                    handle_mod(dic);
-                }
-                break;
-            default:
-            	Utils.sleep(5000);
-                break;
-        }
-    }
+//    private void handle(int selector) {
+//        switch (selector) {
+//            case 2:
+//                JsonObject dic = wxSync();
+//                if (null != dic) {
+//                    handle_msg(dic);
+//                }
+//                break;
+//            case 7:
+//                wxSync();
+//                break;
+//            case 0:
+//                Utils.sleep(5000);
+//                break;
+//            case 6:
+//            	Utils.sleep(5000);
+//            	break;
+//            case 4:
+//                // 保存群聊到通讯录
+//                // 修改群名称
+//                // 新增或删除联系人
+//                // 群聊成员数目变化
+//                dic = wxSync();
+//                if (null != dic) {
+//                    handle_mod(dic);
+//                }
+//                break;
+//            default:
+//            	Utils.sleep(5000);
+//                break;
+//        }
+//    }
 
 }

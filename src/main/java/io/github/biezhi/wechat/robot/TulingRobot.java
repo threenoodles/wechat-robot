@@ -1,21 +1,22 @@
 package io.github.biezhi.wechat.robot;
 
-import com.google.gson.JsonObject;
-import io.github.biezhi.wechat.Utils;
-import io.github.biezhi.wechat.handle.AbstractMessageHandler;
-import io.github.biezhi.wechat.model.Environment;
-import io.github.biezhi.wechat.model.GroupMessage;
-import io.github.biezhi.wechat.model.UserMessage;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import static io.github.biezhi.wechat.api.WechatApi.JSON;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static io.github.biezhi.wechat.api.WechatApi.JSON;
+import com.google.gson.JsonObject;
+
+import io.github.biezhi.wechat.handle.AbstractMessageHandler;
+import io.github.biezhi.wechat.model.Environment;
+import io.github.biezhi.wechat.model.GroupMessage;
+import io.github.biezhi.wechat.model.UserMessage;
+import io.github.biezhi.wechat.utils.Utils;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * 图灵机器人实现

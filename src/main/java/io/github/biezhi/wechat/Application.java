@@ -1,6 +1,5 @@
 package io.github.biezhi.wechat;
 
-import io.github.biezhi.wechat.robot.MoliRobot;
 import io.github.biezhi.wechat.model.Environment;
 import io.github.biezhi.wechat.robot.TulingRobot;
 import io.github.biezhi.wechat.ui.StartUI;

@@ -1,8 +1,15 @@
 package io.github.biezhi.wechat.ui;
 
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 public class QRCodeFrame extends JFrame {
 

@@ -1,11 +1,11 @@
 package io.github.biezhi.wechat.model;
 
-import io.github.biezhi.wechat.Utils;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import io.github.biezhi.wechat.utils.Utils;
 
 /**
  * 常量信息
