@@ -237,6 +237,7 @@ public class WechatApi {
         params.put("lang", conf.get("LANG"));
         params.put("_", System.currentTimeMillis() + "");
 
+        @SuppressWarnings("unchecked")
         String response = doGet(url, params);
         if (Utils.isBlank(response)) {
             log.warn("获取UUID失败");
@@ -299,6 +300,7 @@ public class WechatApi {
         String url = conf.get("API_login") + "?tip=%d&uuid=%s&_%s";
         url = String.format(url, tip, session.getUuid(), System.currentTimeMillis());
 
+        @SuppressWarnings("unchecked")
         String response = doGet(url);
 
         if (Utils.isBlank(response)) {
@@ -494,7 +496,7 @@ public class WechatApi {
         params.put("BaseRequest", this.baseRequest);
         params.put("Count", groupIds.size());
 
-        List<Map> list = new ArrayList<Map>();
+        List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
         for (String groupId : groupIds) {
             list.add(Utils.createMap("UserName", groupId, "EncryChatRoomId", ""));
         }
@@ -587,7 +589,8 @@ public class WechatApi {
         params.put("synckey", this.synckey);
         params.put("_", System.currentTimeMillis());
 
-        String response = doGet(url, this.cookie, params);
+        @SuppressWarnings("unchecked")
+		String response = doGet(url, this.cookie, params);
 
         int[] arr = new int[]{-1, -1};
         if (Utils.isBlank(response)) {
@@ -792,8 +795,8 @@ public class WechatApi {
     	params.put("skey", this.session.getSkey());
     	
     	
-//    	JsonElement result = doPost(url, params);
-//    	log.info("添加好友 : "+ userName +",结果 : " + result.toString());
+    	JsonElement result = doPost(url, params);
+    	System.out.println("添加好友 : "+ userName +",结果 : " + result.toString());
     	return null;
     }
 

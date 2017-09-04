@@ -9,16 +9,17 @@ import io.github.biezhi.wechat.ui.StartUI;
  */
 public class Application {
 
-    public static void main(String[] args) throws Exception {
-        System.setProperty("https.protocols", "TLSv1");
-        System.setProperty("jsse.enableSNIExtension", "false");
+	public static void main(String[] args) throws Exception {
+		System.setProperty("https.protocols", "TLSv1");
+		System.setProperty("jsse.enableSNIExtension", "false");
 
-        Environment environment = Environment.of("classpath:config.properties");
+		Environment environment = Environment.of("classpath:config.properties");
 
-        StartUI startUI = new StartUI(environment);
+		StartUI startUI = new StartUI(environment);
 
-        startUI.setMsgHandle(new TulingRobot(environment));
-        startUI.start();
-    }
+		startUI.setMsgHandle(new TulingRobot(environment));
+		 startUI.start();
+		
+	}
 
 }
