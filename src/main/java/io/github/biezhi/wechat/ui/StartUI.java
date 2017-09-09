@@ -32,7 +32,7 @@ public class StartUI extends WechatApi {
 
 	private static final Logger log = LoggerFactory.getLogger(StartUI.class);
 
-	private static final ExecutorService executorService = Executors.newFixedThreadPool(3);
+	private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 	private MessageHandle messageHandle;
 
@@ -99,27 +99,25 @@ public class StartUI extends WechatApi {
 			}
 		}
 
-		log.info(Const.LOG_MSG_STATUS_NOTIFY);
-		if (!openStatusNotify()) {
-			log.warn("状态通知打开失败");
-		}
-		log.info(Const.LOG_MSG_GET_CONTACT);
-		if (!getContact()) {
-			log.warn("获取联系人失败");
-		}
-		log.info(Const.LOG_MSG_CONTACT_COUNT, memberCount, memberList.size());
-		log.info(Const.LOG_MSG_OTHER_CONTACT_COUNT, groupList.size(), contactList.size(), specialUsersList.size(),
-				publicUsersList.size());
-
-		if (groupList.size() > 0) {
-			executorService.execute(new Runnable() {
-				@Override
-				public void run() {
-					log.info(Const.LOG_MSG_GET_GROUP_MEMBER);
-					StartUI.super.fetchGroupContacts();
+		executorService.execute(new Runnable() {
+			@Override
+			public void run() {
+				log.info(Const.LOG_MSG_STATUS_NOTIFY);
+				if (!openStatusNotify()) {
+					log.warn("状态通知打开失败");
 				}
-			});
-		}
+				log.info(Const.LOG_MSG_GET_CONTACT);
+				if (!getContact()) {
+					log.warn("获取联系人失败");
+				}
+				log.info(Const.LOG_MSG_CONTACT_COUNT, memberCount, memberList.size());
+				log.info(Const.LOG_MSG_OTHER_CONTACT_COUNT, groupList.size(), contactList.size(), specialUsersList.size(),
+						publicUsersList.size());
+
+				log.info(Const.LOG_MSG_GET_GROUP_MEMBER);
+				StartUI.super.fetchGroupContacts();
+			}
+		});
 		log.info(Const.LOG_MSG_SNAPSHOT);
 		super.snapshot();
 		this.listen();
@@ -308,7 +306,7 @@ public class StartUI extends WechatApi {
 
 					@Override
 					public void run() {
-						int random = RandomUtils.nextInt(10000, 60000);
+						int random = RandomUtils.nextInt(1000 * 60 * 10, 1000 * 60 * 20);
 						Utils.sleep(random);
 						StartUI.this.agreeUser(userName, userTicket);
 					}

@@ -83,7 +83,7 @@ public class WechatApi {
     protected JsonArray contactList;
 
     // 群
-    protected JsonArray groupList;
+    protected JsonArray groupList = new JsonArray();
 
     // 群聊成员字典 {group_id:[]}
     protected Map<String, JsonArray> groupMemeberList = new HashMap<String, JsonArray>();
@@ -464,6 +464,7 @@ public class WechatApi {
         this.specialUsersList = new JsonArray();
 
         for (JsonElement element : memberList) {
+        	log.info("element : " + element);
             JsonObject contact = element.getAsJsonObject();
             if (contact.get("VerifyFlag").getAsInt() != 0) { //公众号/服务号
                 ContactList.remove(contact);
@@ -844,7 +845,7 @@ public class WechatApi {
             log.debug("[*] 响应 => {}", body);
             return body;
         } catch (Exception e) {
-            log.error("", e);
+            e.printStackTrace();
             return null;
         }
     }
